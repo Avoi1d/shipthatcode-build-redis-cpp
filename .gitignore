@@ -1,4 +1,29 @@
-.prog
-*.class
-__pycache__/
-node_modules/
+# Build directories
+out/
+build/
+Debug/
+Release/
+x64/
+x86/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.vcxproj.user
+
+# Visual Studio CMake files
+CMakeSettings.json
+CppProperties.json
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+
+# Debug temporary files
+enc_temp_folder/
+
+# OS files
+.DS_Store
+Thumbs.db
