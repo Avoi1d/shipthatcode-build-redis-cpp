@@ -27,3 +27,5 @@ enc_temp_folder/
 # OS files
 .DS_Store
 Thumbs.db
+
+.prog
