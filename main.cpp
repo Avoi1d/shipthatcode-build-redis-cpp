@@ -37,9 +37,30 @@ string toUpper(string s) {
     return s;
 }
 
+string encodeSimpleString(const string& s) {
+    return "+" + s + "\r\n";
+}
+
+string encodeError(const string& s) {
+    return "-" + s + "\r\n";
+}
+
+string encodeInteger(const int& n) {
+    return ":" + to_string(n) + "\r\n";
+}
+
 string encodeBulkString(const string& s) {
     return "$" + to_string(s.size()) + "\r\n" + s + "\r\n";
 }
+
+string encodeNullBulkString() {
+    return "$-1\r\n";
+}
+
+string encodeUnknownCommand(const string& s) {
+    return encodeError("ERR unknown command '" + s + "'\r\n");
+}
+
 
 string handlePING(const vector<string>& args) {
     string response = "+PONG\r\n";
@@ -52,7 +73,7 @@ string handlePING(const vector<string>& args) {
 }
 
 string handleECHO(const vector<string>& args) {
-    string response = "";
+    string response = encodeNullBulkString();
 
     if (args.size() > 1) {
         response = encodeBulkString(args[1]);
@@ -61,13 +82,23 @@ string handleECHO(const vector<string>& args) {
     return response;
 }
 
+string handleCOMMAND_DOCS(const vector<string>& args) {
+    if (args.size() < 2 && args[1] != "DOCS") {
+        return encodeError(args[0]);
+    }
+
+    return encodeSimpleString("OK");
+}
+
 
 string handleCommand(const vector<string>& args) {
     string cmd = toUpper(args[0]);
-    string response = "-ERR unknown command\r\n";
+    string response = encodeUnknownCommand(cmd);
+
     unordered_map<string, function<string(const vector<string>&)>> handlers = {
         {"PING", handlePING},
-        {"ECHO", handleECHO}
+        {"ECHO", handleECHO},
+        {"COMMAND", handleCOMMAND_DOCS}
     };
 
     if (handlers.find(cmd) != handlers.end()) {
