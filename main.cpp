@@ -11,11 +11,21 @@ vector<string> parseArgs(const string& line) {
     vector<string> args;
     string current;
     bool inQuotes = false;
+    string takeRestCommand = "ECHO";
+    bool takeRest = false;
+
     for (char ch : line) {
         if (ch == '"' && !inQuotes) { inQuotes = true; }
         else if (ch == '"' && inQuotes) { inQuotes = false; }
-        else if (ch == ' ' && !inQuotes) {
-            if (!current.empty()) { args.push_back(current); current.clear(); }
+        else if (ch == ' ' && !inQuotes && !takeRest) {
+            if (!current.empty()) { 
+                args.push_back(current); 
+                
+                if (current == takeRestCommand) {
+                    takeRest = true;
+                }
+
+                current.clear(); }
         } else { current += ch; }
     }
     if (!current.empty()) args.push_back(current);
@@ -41,12 +51,23 @@ string handlePING(const vector<string>& args) {
     return response;
 }
 
+string handleECHO(const vector<string>& args) {
+    string response = "";
+
+    if (args.size() > 1) {
+        response = encodeBulkString(args[1]);
+    }
+
+    return response;
+}
+
 
 string handleCommand(const vector<string>& args) {
     string cmd = toUpper(args[0]);
     string response = "-ERR unknown command\r\n";
     unordered_map<string, function<string(const vector<string>&)>> handlers = {
-        {"PING", handlePING}
+        {"PING", handlePING},
+        {"ECHO", handleECHO}
     };
 
     if (handlers.find(cmd) != handlers.end()) {
