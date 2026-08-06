@@ -2,7 +2,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <format>
 
 using namespace std;
 
@@ -49,8 +48,6 @@ string handleCommand(const vector<string>& args) {
         {
             response = "+PONG\r\n";
         }
-        
-
     }
 
     return response;
