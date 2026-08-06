@@ -2,6 +2,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
+#include <functional>
 
 using namespace std;
 
@@ -29,25 +31,26 @@ string encodeBulkString(const string& s) {
     return "$" + to_string(s.size()) + "\r\n" + s + "\r\n";
 }
 
+string handlePING(const vector<string>& args) {
+    string response = "+PONG\r\n";
+
+    if (args.size() > 1) {
+        response = encodeBulkString(args[1]);
+    }
+
+    return response;
+}
+
+
 string handleCommand(const vector<string>& args) {
     string cmd = toUpper(args[0]);
     string response = "-ERR unknown command\r\n";
+    unordered_map<string, function<string(const vector<string>&)>> handlers = {
+        {"PING", handlePING}
+    };
 
-    if (cmd == "PING") {
-        // TODO: Return "+PONG\r\n" for no args
-        // TODO: Return bulk string for PING <message>
-        if (args.size() > 1) {
-            string msg = args[1];
-            vector<string> components = { "$", to_string(msg.size()), "\r\n", msg, "\r\n" };
-            response = "";
-            for (int i = 0; i < components.size(); i++) {
-                response += components[i];
-            }
-        }
-        else
-        {
-            response = "+PONG\r\n";
-        }
+    if (handlers.find(cmd) != handlers.end()) {
+        response = handlers[cmd](args);
     }
 
     return response;
