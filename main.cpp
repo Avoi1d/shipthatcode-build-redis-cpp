@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <format>
 
 using namespace std;
 
@@ -31,13 +32,28 @@ string encodeBulkString(const string& s) {
 
 string handleCommand(const vector<string>& args) {
     string cmd = toUpper(args[0]);
+    string response = "-ERR unknown command\r\n";
 
     if (cmd == "PING") {
         // TODO: Return "+PONG\r\n" for no args
         // TODO: Return bulk string for PING <message>
+        if (args.size() > 1) {
+            string msg = args[1];
+            vector<string> components = { "$", to_string(msg.size()), "\r\n", msg, "\r\n" };
+            response = "";
+            for (int i = 0; i < components.size(); i++) {
+                response += components[i];
+            }
+        }
+        else
+        {
+            response = "+PONG\r\n";
+        }
+        
+
     }
 
-    return "-ERR unknown command\r\n";
+    return response;
 }
 
 int main() {
